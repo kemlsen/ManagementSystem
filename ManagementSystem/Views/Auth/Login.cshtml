@@ -1,0 +1,38 @@
+﻿@model LoginViewModel
+
+<!-- Sayfayı ortalamak için flexbox ile dikey ve yatay olarak ortalıyoruz -->
+<div class="container-fluid d-flex justify-content-center align-items-center" style="height: 100vh; background-color: #f4f6f9;">
+    <!-- Kartı ortalamak için flex kullanıyoruz -->
+    <div class="card shadow-lg" style="width: 100%; max-width: 400px; padding: 20px;">
+        <div class="card-body">
+            <h4 class="text-center mb-6">Giriş Yap</h4>
+            <form asp-action="Login" method="post">
+                <!-- Kullanıcı Adı Girişi -->
+                <div class="form-group">
+                    <label for="UserName" class="font-weight-bold">Ad</label>
+                    <input type="text" id="UserName" name="UserName" class="form-control" asp-for="UserName" />
+                    <span asp-validation-for="UserName" class="text-danger"></span>
+                </div>
+                <!-- Şifre Girişi -->
+                <div class="form-group">
+                    <label for="Password" class="font-weight-bold">Şifre</label>
+                    <input type="password" id="Password" name="Password" class="form-control" asp-for="Password" />
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+
+                <!-- Giriş Yap Butonu -->
+                <button type="submit" class="btn btn-primary w-100 mt-3">Giriş Yap</button>
+            </form>
+        </div>
+
+        <!-- Çıkış Linki -->
+        <div class="card-footer text-center">
+            <a href="/Auth/Logout" class="text-muted">Çıkış Yap</a>
+        </div>
+    </div>
+</div>
+
+<!-- Validation script (if not already included) -->
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
