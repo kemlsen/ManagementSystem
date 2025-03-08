@@ -1,8 +1,11 @@
+using ManagementSystem.Models;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-
+builder.Services.AddDbContext<ManagementContext>(options => options.UseSqlServer("Server=localhost;Database=managementDb;Trusted_Connection=True;TrustServerCertificate=True;"));
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

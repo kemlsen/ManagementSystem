@@ -1,38 +1,41 @@
 ﻿@model LoginViewModel
 
 <!-- Sayfayı ortalamak için flexbox ile dikey ve yatay olarak ortalıyoruz -->
-<div class="container-fluid d-flex justify-content-center align-items-center" style="height: 100vh; background-color: #f4f6f9;">
-    <!-- Kartı ortalamak için flex kullanıyoruz -->
-    <div class="card shadow-lg" style="width: 100%; max-width: 400px; padding: 20px;">
-        <div class="card-body">
-            <h4 class="text-center mb-6">Giriş Yap</h4>
+<div class="d-flex justify-content-center align-items-center vh-100">
+    <div class="card shadow-lg border-0" style="width: 100%; max-width: 400px; border-radius: 10px;">
+        <div class="card-body p-4">
+            <div class="text-center mb-4">
+                <h3 class="fw-bold text-primary">Hoşgeldiniz</h3>
+                <p class="text-muted">Lütfen giriş yapın</p>
+            </div>
             <form asp-action="Login" method="post">
                 <!-- Kullanıcı Adı Girişi -->
-                <div class="form-group">
-                    <label for="UserName" class="font-weight-bold">Ad</label>
-                    <input type="text" id="UserName" name="UserName" class="form-control" asp-for="UserName" />
+                <div class="mb-3">
+                    <label for="UserName" class="form-label">Kullanıcı Adı</label>
+                    <div class="input-group">
+                        <input type="text" id="UserName" name="UserName" class="form-control" asp-for="UserName" placeholder="Kullanıcı adınızı girin" required />
+                    </div>
                     <span asp-validation-for="UserName" class="text-danger"></span>
                 </div>
+
                 <!-- Şifre Girişi -->
-                <div class="form-group">
-                    <label for="Password" class="font-weight-bold">Şifre</label>
-                    <input type="password" id="Password" name="Password" class="form-control" asp-for="Password" />
+                <div class="mb-3">
+                    <label for="Password" class="form-label">Şifre</label>
+                    <div class="input-group">
+                        <input type="password" id="Password" name="Password" class="form-control" asp-for="Password" placeholder="Şifrenizi girin" required />
+                    </div>
                     <span asp-validation-for="Password" class="text-danger"></span>
                 </div>
 
                 <!-- Giriş Yap Butonu -->
-                <button type="submit" class="btn btn-primary w-100 mt-3">Giriş Yap</button>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary">Giriş Yap</button>
+                </div>
             </form>
-        </div>
-
-        <!-- Çıkış Linki -->
-        <div class="card-footer text-center">
-            <a href="/Auth/Logout" class="text-muted">Çıkış Yap</a>
         </div>
     </div>
 </div>
 
-<!-- Validation script (if not already included) -->
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }

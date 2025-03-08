@@ -1,13 +1,16 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿using ManagementSystem.Models;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 
 namespace ManagementSystem.Controllers
 {
     public class AuthController : Controller
     {
-        private readonly EmployeeContext _context;
+        private readonly ManagementContext _context;
 
-        public AuthController(EmployeeContext context)
+        public AuthController(ManagementContext context)
         {
             _context = context;
         }
@@ -16,6 +19,44 @@ namespace ManagementSystem.Controllers
         public IActionResult Login()
         {
             return View();
+        }
+
+        [HttpGet]
+        public IActionResult Register()
+        {
+            ViewBag.UserTypes = Enum.GetValues(typeof(UserType))
+                                    .Cast<UserType>()
+                                    .Select(e => new SelectListItem
+                                    {
+                                        Value = e.ToString(),
+                                        Text = e.ToString()
+                                    }).ToList();
+
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Register(RegisterViewModel model)
+        {
+            if (_context.Users.Any(u => u.UserName == model.UserName))
+            {
+                ModelState.AddModelError("UserName", "Bu kullanıcı adı zaten alınmış.");
+                return View(model);
+            }
+
+            var user = new User
+            {
+                FirstName = model.FirstName,
+                LastName = model.LastName,
+                UserName = model.UserName,
+                UserType = model.UserType,
+                Password = model.Password,
+            };
+
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+
+            return View(model);
         }
 
         [HttpPost]
