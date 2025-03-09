@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using ManagementSystem.Models.Entities;
+using System.ComponentModel.DataAnnotations;
 
 namespace ManagementSystem.Models
 {

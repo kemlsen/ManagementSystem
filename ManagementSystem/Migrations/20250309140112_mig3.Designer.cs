@@ -4,6 +4,7 @@ using ManagementSystem.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ManagementSystem.Migrations
 {
     [DbContext(typeof(ManagementContext))]
-    partial class ManagementContextModelSnapshot : ModelSnapshot
+    [Migration("20250309140112_mig3")]
+    partial class mig3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -48,7 +51,7 @@ namespace ManagementSystem.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Appointments");
+                    b.ToTable("Appointment");
                 });
 
             modelBuilder.Entity("ManagementSystem.Models.Entities.Service", b =>
@@ -59,30 +62,12 @@ namespace ManagementSystem.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Name")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Services");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Egzoz Gazı Ölçümü"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Fren Testi"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "Far Ayarı"
-                        });
+                    b.ToTable("Service");
                 });
 
             modelBuilder.Entity("ManagementSystem.Models.Entities.User", b =>

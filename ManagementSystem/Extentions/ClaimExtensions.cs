@@ -1,4 +1,4 @@
-﻿using ManagementSystem.Models;
+﻿using ManagementSystem.Models.Entities;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 

@@ -1,6 +1,6 @@
 ﻿using ManagementSystem.Models;
+using ManagementSystem.Models.Entities;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -40,13 +40,12 @@ namespace ManagementSystem.Controllers
                         return RedirectToAction("Index", "Home");
 
                     case UserType.Admin:
-                        return RedirectToAction("Appointment", "Home");
+                        return RedirectToAction("Index", "Appointments");
                 }
             }
             return View(model);
         }
 
-        [Authorize]
         [HttpPost]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
@@ -73,7 +72,6 @@ namespace ManagementSystem.Controllers
             return RedirectToAction("Index", "Auth");
         }
 
-        [Authorize]
         [HttpGet]
         public IActionResult GetUser(int id)
         {
@@ -85,7 +83,6 @@ namespace ManagementSystem.Controllers
             return Json(user);
         }
 
-        [Authorize]
         [HttpGet]
         public IActionResult Register()
         {
@@ -100,7 +97,6 @@ namespace ManagementSystem.Controllers
             return View();
         }
         
-        [Authorize]
         [HttpPost]
         public async Task<IActionResult> UpdateUser([FromBody]UpdateUserViewModel model)
         {
@@ -117,16 +113,13 @@ namespace ManagementSystem.Controllers
             return RedirectToAction("Index", "Auth");
         }
 
-        [Authorize]
         public async Task<IActionResult> Index()
         {
             var users = await _context.Users.ToListAsync();
             return View(users);
         }
         
-        [Authorize]
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
             var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == id);

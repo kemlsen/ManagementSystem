@@ -1,5 +1,6 @@
 ﻿using ManagementSystem.Extentions;
 using ManagementSystem.Models;
+using ManagementSystem.Models.Entities;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;

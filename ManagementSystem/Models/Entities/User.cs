@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel;
 
-namespace ManagementSystem.Models
+namespace ManagementSystem.Models.Entities
 {
     public class User
     {
@@ -21,6 +21,7 @@ namespace ManagementSystem.Models
         public byte[] PasswordSalt { get; set; }
         public byte[] PasswordHash { get; set; }
         public UserType UserType { get; set; }
+        public List<Appointment> Appointments { get; set; }
     }
     public enum UserType
     {
