@@ -7,7 +7,7 @@
                 <h3 class="fw-bold text-primary">Hoşgeldiniz</h3>
                 <p class="text-muted">Lütfen giriş yapın</p>
             </div>
-            <form asp-action="Login" method="post">
+            <form id="loginForm" method="post">
                 <div class="mb-3">
                     <label for="UserName" class="form-label">Kullanıcı Adı</label>
                     <div class="input-group">
@@ -26,10 +26,41 @@
                     <button type="submit" class="btn btn-primary">Giriş Yap</button>
                 </div>
             </form>
+            <div id="errorMessage" class="text-danger mt-3" style="display:none;"></div>
         </div>
     </div>
 </div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#loginForm').submit(function (e) {
+                e.preventDefault(); 
+
+                var loginData = {
+                    UserName: $('#UserName').val(),
+                    Password: $('#Password').val()
+                };
+
+                $.ajax({
+                    url: '@Url.Action("Login", "Auth")', 
+                    type: 'POST',
+                    contentType: 'application/json', 
+                    data: JSON.stringify(loginData), 
+                    success: function (response) {
+                        if (response.success) {
+                            }
+                        } else {
+                            $('#errorMessage').text(response.message).show();
+                        }
+                    },
+                    error: function () {
+                        $('#errorMessage').text("Bir hata oluştu, lütfen tekrar deneyin.").show();
+                    }
+                });
+            });
+        });
+    </script>
 }

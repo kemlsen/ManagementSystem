@@ -22,32 +22,31 @@ namespace ManagementSystem.Controllers
             return View();
         }
 
-        [HttpGet]
-        [Authorize]
-        public IActionResult GetUser(int id)
+        [HttpPost]
+        public async Task<IActionResult> Login([FromBody]LoginViewModel model)
         {
-            var user = _context.Users.FirstOrDefault(u => u.Id == id);
-            if (user == null)
+            if (ModelState.IsValid)
             {
-                return NotFound();
+                var user = _context.Users.FirstOrDefault(x => x.UserName == model.UserName);
+
+                if (user == null || !HashingHelper.VerifyPasswordHash(model.Password, user.PasswordHash, user.PasswordSalt))
+                {
+                    ModelState.AddModelError(string.Empty, "Kullanıcı adı veya şifre hatalı");
+                    return View(model);
+                }
+                switch (user.UserType)
+                {
+                    case UserType.User:
+                        return RedirectToAction("Index", "Home");
+
+                    case UserType.Admin:
+                        return RedirectToAction("Appointment", "Home");
+                }
             }
-            return Json(user);
+            return View(model);
         }
 
-        [HttpGet]
-        public IActionResult Register()
-        {
-            ViewBag.UserTypes = Enum.GetValues(typeof(UserType))
-                                    .Cast<UserType>()
-                                    .Select(e => new SelectListItem
-                                    {
-                                        Value = e.ToString(),
-                                        Text = e.ToString()
-                                    }).ToList();
-
-            return View();
-        }
-
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
@@ -74,6 +73,34 @@ namespace ManagementSystem.Controllers
             return RedirectToAction("Index", "Auth");
         }
 
+        [Authorize]
+        [HttpGet]
+        public IActionResult GetUser(int id)
+        {
+            var user = _context.Users.FirstOrDefault(u => u.Id == id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            return Json(user);
+        }
+
+        [Authorize]
+        [HttpGet]
+        public IActionResult Register()
+        {
+            ViewBag.UserTypes = Enum.GetValues(typeof(UserType))
+                                    .Cast<UserType>()
+                                    .Select(e => new SelectListItem
+                                    {
+                                        Value = e.ToString(),
+                                        Text = e.ToString()
+                                    }).ToList();
+
+            return View();
+        }
+        
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> UpdateUser([FromBody]UpdateUserViewModel model)
         {
@@ -90,36 +117,14 @@ namespace ManagementSystem.Controllers
             return RedirectToAction("Index", "Auth");
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Login(LoginViewModel model)
-        {
-            if (ModelState.IsValid)
-            {
-                var user = _context.Users.FirstOrDefault(x => x.UserName == model.UserName);
-
-                if (user == null || !HashingHelper.VerifyPasswordHash(model.Password, user.PasswordHash, user.PasswordSalt))
-                {
-                    ModelState.AddModelError(string.Empty, "Kullanıcı adı veya şifre hatalı");
-                    return View(model);
-                }
-                switch (user.UserType)
-                {
-                    case UserType.User:
-                        return RedirectToAction("Index", "Home");
-
-                    case UserType.Admin:
-                        return RedirectToAction("Appointment", "Home");
-                }
-            }
-            return View(model);
-        }
         [Authorize]
         public async Task<IActionResult> Index()
         {
             var users = await _context.Users.ToListAsync();
             return View(users);
         }
-
+        
+        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
