@@ -1,0 +1,44 @@
+﻿@using ManagementSystem.Models.ViewModels
+@model CreateAppointmentViewModel
+
+<nav class="navbar navbar-dark bg-dark px-4">
+    <a class="navbar-brand text-white" href="#">User Panel</a>
+    <div class="d-flex">
+        <a href="/appointments/getappointmentsbyuserId" class="nav-link text-white ms-3">Randevularım</a>
+    </div>
+</nav>
+
+<div class="content-wrapper d-flex justify-content-center align-items-center min-vh-100">
+    <div class="card shadow-lg border-0" style="width: 100%; max-width: 400px; border-radius: 10px;">
+        <div class="card-body p-4">
+            <div class="text-center mb-4">
+                <h3 class="fw-bold text-primary">Kayıt Ol</h3>
+            </div>
+            <form asp-action="CreateAppointment" method="post">
+                <div class="mb-3">
+                    <label for="AppointmentDate" class="form-label">Randevu Tarihi</label>
+                    <input type="datetime-local" id="AppointmentDate" name="AppointmentDate" class="form-control" asp-for="AppointmentDate" required
+                           value="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" />
+                    <span asp-validation-for="AppointmentDate" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label for="ServiceId" class="form-label">Hizmet Seçin</label>
+                    <select id="ServiceId" name="ServiceId" class="form-control" asp-for="ServiceId" required>
+                        @foreach (var service in Model.Services)
+                        {
+                            <option value="@service.Id">@service.Name</option>
+                        }
+                    </select>
+                    <span asp-validation-for="ServiceId" class="text-danger"></span>
+                </div>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-success">Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

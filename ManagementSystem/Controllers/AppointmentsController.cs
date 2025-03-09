@@ -51,5 +51,33 @@ namespace ManagementSystem.Controllers
 
             return RedirectToAction("Index", "Appointments");
         }
+
+        [HttpGet]
+        public IActionResult CreateAppointment()
+        {
+            var services = _context.Services.ToList();
+            var model = new CreateAppointmentViewModel
+            {
+                Services = services  
+            };
+            return View(model);
+        }
+
+        [HttpPost]
+        public IActionResult CreateAppointment(CreateAppointmentViewModel model)
+        {
+            var appointment = new Appointment
+            {
+                ServiceId = model.ServiceId,
+                AppointmentDate = model.AppointmentDate,
+                UserId = 1,
+                Status = Status.Approved,
+            };
+
+            _context.Appointments.Add(appointment);
+            _context.SaveChanges();
+
+            return RedirectToAction("Index", "Appointments");
+        }
     }
 }
