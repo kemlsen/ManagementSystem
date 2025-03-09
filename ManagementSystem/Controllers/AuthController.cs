@@ -67,7 +67,7 @@ namespace ManagementSystem.Controllers
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
-            return View(model);
+            return RedirectToAction("Index", "Auth");
         }
 
         [HttpPost]
@@ -83,7 +83,7 @@ namespace ManagementSystem.Controllers
             _context.Users.Update(user);
             await _context.SaveChangesAsync();
 
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index", "Auth");
         }
 
         [HttpPost]

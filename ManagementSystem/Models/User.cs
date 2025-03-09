@@ -23,7 +23,7 @@ namespace ManagementSystem.Models
     }
     public enum UserType
     {
-        User,
+        User = 1,
         Admin
     }
 }

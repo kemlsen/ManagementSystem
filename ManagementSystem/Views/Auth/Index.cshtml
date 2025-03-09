@@ -60,39 +60,35 @@
 </div>
 
 <div class="modal fade" id="editUserModal" tabindex="-1" role="dialog" aria-labelledby="editUserModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content rounded-lg shadow-lg">
             <form id="editUserForm">
                 <div class="modal-header">
                     <h5 class="modal-title" id="editUserModalLabel">Kullanıcıyı Güncelle</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Kapat">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
                 </div>
                 <div class="modal-body">
                     <input type="hidden" id="editUserId" />
                     <div class="form-group">
-                        <label>Ad</label>
+                        <label for="editFirstName">Ad</label>
                         <input type="text" class="form-control" id="editFirstName" required />
                     </div>
                     <div class="form-group">
-                        <label>Soyad</label>
+                        <label for="editLastName">Soyad</label>
                         <input type="text" class="form-control" id="editLastName" required />
                     </div>
                     <div class="form-group">
-                        <label>Kullanıcı Adı</label>
+                        <label for="editUserName">Kullanıcı Adı</label>
                         <input type="text" class="form-control" id="editUserName" required />
                     </div>
                     <div class="form-group">
-                        <label>Kullanıcı Tipi</label>
+                        <label for="editUserType">Kullanıcı Tipi</label>
                         <select class="form-control" id="editUserType" required>
-                            <option value="0">User</option>
-                            <option value="1">Admin</option>
+                            <option value="1">User</option>
+                            <option value="2">Admin</option>
                         </select>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">İptal</button>
                     <button type="submit" class="btn btn-primary">Kaydet</button>
                 </div>
             </form>
@@ -137,7 +133,7 @@
                 data: JSON.stringify(data),
                 success: function () {
                     $('#editUserModal').modal('hide');
-                    location.reload(); 
+                    location.reload();
                 },
                 error: function () {
                     alert("Kullanıcı güncellenirken bir hata oluştu.");

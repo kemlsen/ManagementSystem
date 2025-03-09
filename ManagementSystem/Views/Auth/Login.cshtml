@@ -1,6 +1,5 @@
 ﻿@model LoginViewModel
 
-<!-- Sayfayı ortalamak için flexbox ile dikey ve yatay olarak ortalıyoruz -->
 <div class="d-flex justify-content-center align-items-center vh-100">
     <div class="card shadow-lg border-0" style="width: 100%; max-width: 400px; border-radius: 10px;">
         <div class="card-body p-4">
@@ -9,7 +8,6 @@
                 <p class="text-muted">Lütfen giriş yapın</p>
             </div>
             <form asp-action="Login" method="post">
-                <!-- Kullanıcı Adı Girişi -->
                 <div class="mb-3">
                     <label for="UserName" class="form-label">Kullanıcı Adı</label>
                     <div class="input-group">
@@ -17,8 +15,6 @@
                     </div>
                     <span asp-validation-for="UserName" class="text-danger"></span>
                 </div>
-
-                <!-- Şifre Girişi -->
                 <div class="mb-3">
                     <label for="Password" class="form-label">Şifre</label>
                     <div class="input-group">
@@ -26,8 +22,6 @@
                     </div>
                     <span asp-validation-for="Password" class="text-danger"></span>
                 </div>
-
-                <!-- Giriş Yap Butonu -->
                 <div class="d-grid">
                     <button type="submit" class="btn btn-primary">Giriş Yap</button>
                 </div>
