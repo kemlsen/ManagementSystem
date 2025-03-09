@@ -27,12 +27,19 @@
                         <td>@user.UserName</td>
                         <td>@user.UserType</td>
                         <td class="text-right">
-                            <a href="@Url.Action("Edit", "Auth", new { id = user.Id })" class="btn btn-warning btn-sm">
+                            <a href="javascript:void(0);"
+                               class="btn btn-warning btn-sm editUserBtn"
+                               data-id="@user.Id"
+                               data-firstname="@user.FirstName"
+                               data-lastname="@user.LastName"
+                               data-username="@user.UserName"
+                               data-usertype="@((int)user.UserType)">
                                 <i class="fas fa-edit fa-lg"></i>
                             </a>
 
-                            <!-- Silme işlemi için form -->
-                            <form action="@Url.Action("Delete", "Auth", new { id = user.Id })" method="post" class="d-inline" onsubmit="return confirm('Bu kullanıcıyı silmek istediğinizden emin misiniz?');">
+                            <form action="@Url.Action("Delete", "Auth", new { id = user.Id })"
+                                  method="post" class="d-inline"
+                                  onsubmit="return confirm('Bu kullanıcıyı silmek istediğinizden emin misiniz?');">
                                 @Html.AntiForgeryToken()
                                 <button type="submit" class="btn btn-danger btn-sm ml-2">
                                     <i class="fas fa-trash fa-lg"></i>
@@ -47,8 +54,95 @@
 
     <div class="text-center mt-4">
         <a href="@Url.Action("Register", "Auth")" class="btn btn-success">
-            <i class="fas fa-plus fa-lg"></i>
-            Kullanıcı Ekle
+            <i class="fas fa-plus fa-lg"></i> Kullanıcı Ekle
         </a>
     </div>
 </div>
+
+<div class="modal fade" id="editUserModal" tabindex="-1" role="dialog" aria-labelledby="editUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form id="editUserForm">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editUserModalLabel">Kullanıcıyı Güncelle</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Kapat">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="editUserId" />
+                    <div class="form-group">
+                        <label>Ad</label>
+                        <input type="text" class="form-control" id="editFirstName" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Soyad</label>
+                        <input type="text" class="form-control" id="editLastName" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Kullanıcı Adı</label>
+                        <input type="text" class="form-control" id="editUserName" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Kullanıcı Tipi</label>
+                        <select class="form-control" id="editUserType" required>
+                            <option value="0">User</option>
+                            <option value="1">Admin</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">İptal</button>
+                    <button type="submit" class="btn btn-primary">Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        $(document).on('click', '.editUserBtn', function () {
+            var userId = $(this).data('id');
+            var firstName = $(this).data('firstname');
+            var lastName = $(this).data('lastname');
+            var userName = $(this).data('username');
+            var userType = $(this).data('usertype');
+
+            $('#editUserId').val(userId);
+            $('#editFirstName').val(firstName);
+            $('#editLastName').val(lastName);
+            $('#editUserName').val(userName);
+            $('#editUserType').val(userType);
+
+            $('#editUserModal').modal('show');
+        });
+
+        $('#editUserForm').on('submit', function (e) {
+            e.preventDefault();
+
+            var data = {
+                Id: $('#editUserId').val(),
+                FirstName: $('#editFirstName').val(),
+                LastName: $('#editLastName').val(),
+                UserName: $('#editUserName').val(),
+                UserType: $('#editUserType').val()
+            };
+
+            $.ajax({
+                url: '/Auth/UpdateUser',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function () {
+                    $('#editUserModal').modal('hide');
+                    location.reload(); 
+                },
+                error: function () {
+                    alert("Kullanıcı güncellenirken bir hata oluştu.");
+                }
+            });
+        });
+    </script>
+}

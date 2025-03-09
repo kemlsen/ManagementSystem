@@ -22,6 +22,17 @@ namespace ManagementSystem.Controllers
         }
 
         [HttpGet]
+        public IActionResult GetUser(int id)
+        {
+            var user = _context.Users.FirstOrDefault(u => u.Id == id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            return Json(user);
+        }
+
+        [HttpGet]
         public IActionResult Register()
         {
             ViewBag.UserTypes = Enum.GetValues(typeof(UserType))
@@ -57,6 +68,22 @@ namespace ManagementSystem.Controllers
             await _context.SaveChangesAsync();
 
             return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateUser([FromBody]UpdateUserViewModel model)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == model.UserName);
+
+            user.FirstName = model.FirstName;
+            user.LastName = model.LastName;
+            user.UserName = model.UserName;
+            user.UserType = (UserType)model.UserType;
+
+            _context.Users.Update(user);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Index", "Home");
         }
 
         [HttpPost]
