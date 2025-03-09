@@ -72,16 +72,16 @@ namespace ManagementSystem.Controllers
             return RedirectToAction("Index", "Auth");
         }
 
-        [HttpGet]
-        public IActionResult GetUser(int id)
-        {
-            var user = _context.Users.FirstOrDefault(u => u.Id == id);
-            if (user == null)
-            {
-                return NotFound();
-            }
-            return Json(user);
-        }
+        //[HttpGet]
+        //public IActionResult GetUser(int id)
+        //{
+        //    var user = _context.Users.FirstOrDefault(u => u.Id == id);
+        //    if (user == null)
+        //    {
+        //        return NotFound();
+        //    }
+        //    return Json(user);
+        //}
 
         [HttpGet]
         public IActionResult Register()

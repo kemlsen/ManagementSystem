@@ -1,4 +1,6 @@
-﻿namespace ManagementSystem.Models.Entities
+﻿using System.ComponentModel;
+
+namespace ManagementSystem.Models.Entities
 {
     public class Appointment
     {
@@ -12,8 +14,13 @@
     }
     public enum Status
     {
+        [Description("Onaylandı")]
         Approved = 1,
+
+        [Description("İptal Edildi")]
         Canceled,
+
+        [Description("Tamamlandı")]
         Completed
     }
 }
