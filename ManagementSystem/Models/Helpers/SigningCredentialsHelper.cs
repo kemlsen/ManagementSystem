@@ -1,6 +1,6 @@
 ﻿using Microsoft.IdentityModel.Tokens;
 
-namespace ManagementSystem.Models
+namespace ManagementSystem.Models.Helpers
 {
     public class SigningCredentialsHelper
     {

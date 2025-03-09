@@ -16,12 +16,18 @@ namespace ManagementSystem.Controllers
         }
         public async Task<IActionResult> Index()
         {
-            var appointments = await _context.Appointments.Include(x=>x.Service).Include(x => x.User).ToListAsync();
+            var appointments = await _context.Appointments.Include(x => x.Service).Include(x => x.User).ToListAsync();
+            return View(appointments);
+        }
+
+        public async Task<IActionResult> GetAppointmentsByUserId()
+        {
+            var appointments = await _context.Appointments.Include(x => x.Service).Include(x => x.User).ToListAsync();
             return View(appointments);
         }
 
         [HttpPost]
-        public IActionResult UpdateStatus([FromBody] UpdateAppointmentStatus model)
+        public IActionResult UpdateStatus([FromBody] UpdateAppointmentStatusViewModel model)
         {
             var appointment = _context.Appointments.FirstOrDefault(x => x.Id == model.Id);
             if (appointment == null)
@@ -33,10 +39,17 @@ namespace ManagementSystem.Controllers
             return RedirectToAction("Index", "Appointments");
         }
 
-        public IActionResult GetAppointmentsByUserId(int userId)
+        [HttpPost]
+        public IActionResult UpdateAppointment([FromBody] UpdateAppointmentViewModel model)
         {
-            var appointments = _context.Appointments.Where(x => x.UserId== userId).ToList();
-            return View(appointments);
+            var appointment = _context.Appointments.FirstOrDefault(x => x.Id == model.Id);
+
+            appointment.ServiceId = model.ServiceId;
+            appointment.AppointmentDate = model.AppointmentDate;
+
+            _context.SaveChanges();
+
+            return RedirectToAction("Index", "Appointments");
         }
     }
 }

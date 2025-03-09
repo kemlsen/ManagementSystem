@@ -2,7 +2,7 @@
 
 namespace ManagementSystem.Models.ViewModels
 {
-    public class UpdateAppointmentStatus
+    public class UpdateAppointmentStatusViewModel
     {
         public int Id { get; set; }
         public int Status { get; set; }

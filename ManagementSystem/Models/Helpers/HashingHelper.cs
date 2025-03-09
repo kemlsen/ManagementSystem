@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace ManagementSystem.Models
+namespace ManagementSystem.Models.Helpers
 {
     public class HashingHelper
     {
