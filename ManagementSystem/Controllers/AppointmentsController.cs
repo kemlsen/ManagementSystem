@@ -1,5 +1,6 @@
 ﻿using ManagementSystem.Models;
 using ManagementSystem.Models.Entities;
+using ManagementSystem.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,16 +21,22 @@ namespace ManagementSystem.Controllers
         }
 
         [HttpPost]
-        public IActionResult UpdateStatus([FromBody] Appointment model)
+        public IActionResult UpdateStatus([FromBody] UpdateAppointmentStatus model)
         {
             var appointment = _context.Appointments.FirstOrDefault(x => x.Id == model.Id);
             if (appointment == null)
                 return NotFound();
 
-            appointment.Status = model.Status;
+            appointment.Status = (Status)model.Status;
             _context.SaveChanges();
 
             return RedirectToAction("Index", "Appointments");
+        }
+
+        public IActionResult GetAppointmentsByUserId(int userId)
+        {
+            var appointments = _context.Appointments.Where(x => x.UserId== userId).ToList();
+            return View(appointments);
         }
     }
 }

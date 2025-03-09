@@ -1,9 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace ManagementSystem.Models
+namespace ManagementSystem.Models.ViewModels
 {
     public class UpdateUserViewModel
     {
+        public int Id { get; set; }
+
         [Required(ErrorMessage = "Ad alanı zorunludur.")]
         [StringLength(50, ErrorMessage = "Ad en fazla 50 karakter olabilir.")]
         public string FirstName { get; set; }

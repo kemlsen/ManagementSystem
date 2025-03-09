@@ -1,5 +1,6 @@
 ﻿using ManagementSystem.Models;
 using ManagementSystem.Models.Entities;
+using ManagementSystem.Models.ViewModels;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -37,10 +38,10 @@ namespace ManagementSystem.Controllers
                 switch (user.UserType)
                 {
                     case UserType.User:
-                        return RedirectToAction("Index", "Home");
+                        return RedirectToAction("Index", "UserDashboard");
 
                     case UserType.Admin:
-                        return RedirectToAction("Index", "Appointments");
+                        return RedirectToAction("Index", "AdminDashboard");
                 }
             }
             return View(model);
@@ -72,17 +73,6 @@ namespace ManagementSystem.Controllers
             return RedirectToAction("Index", "Auth");
         }
 
-        //[HttpGet]
-        //public IActionResult GetUser(int id)
-        //{
-        //    var user = _context.Users.FirstOrDefault(u => u.Id == id);
-        //    if (user == null)
-        //    {
-        //        return NotFound();
-        //    }
-        //    return Json(user);
-        //}
-
         [HttpGet]
         public IActionResult Register()
         {
@@ -100,7 +90,7 @@ namespace ManagementSystem.Controllers
         [HttpPost]
         public async Task<IActionResult> UpdateUser([FromBody]UpdateUserViewModel model)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == model.UserName);
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == model.Id);
 
             user.FirstName = model.FirstName;
             user.LastName = model.LastName;
