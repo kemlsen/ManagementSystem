@@ -1,9 +1,13 @@
 using ManagementSystem.Models;
+using ManagementSystem.Models.Helpers;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+builder.Services.AddScoped<CookieHelper>();
 
 builder.Services.AddDbContext<ManagementContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))); 

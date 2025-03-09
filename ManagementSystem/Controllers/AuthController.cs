@@ -12,10 +12,12 @@ namespace ManagementSystem.Controllers
     public class AuthController : Controller
     {
         private readonly ManagementContext _context;
+        private readonly CookieHelper _cookieHelper;
 
-        public AuthController(ManagementContext context)
+        public AuthController(ManagementContext context, CookieHelper cookieHelper)
         {
             _context = context;
+            _cookieHelper = cookieHelper;
         }
 
         [HttpGet]
@@ -25,7 +27,7 @@ namespace ManagementSystem.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Login([FromBody]LoginViewModel model)
+        public async Task<IActionResult> Login([FromBody] LoginViewModel model)
         {
             if (ModelState.IsValid)
             {
@@ -36,6 +38,7 @@ namespace ManagementSystem.Controllers
                     ModelState.AddModelError(string.Empty, "Kullanıcı adı veya şifre hatalı");
                     return View(model);
                 }
+                _cookieHelper.SetCookie("userId", user.Id.ToString());
                 switch (user.UserType)
                 {
                     case UserType.User:
@@ -70,7 +73,7 @@ namespace ManagementSystem.Controllers
 
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
-
+            _cookieHelper.SetCookie("userId", user.Id.ToString());
             return RedirectToAction("Index", "Auth");
         }
 
@@ -87,9 +90,9 @@ namespace ManagementSystem.Controllers
 
             return View();
         }
-        
+
         [HttpPost]
-        public async Task<IActionResult> UpdateUser([FromBody]UpdateUserViewModel model)
+        public async Task<IActionResult> UpdateUser([FromBody] UpdateUserViewModel model)
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == model.Id);
 
@@ -109,7 +112,7 @@ namespace ManagementSystem.Controllers
             var users = await _context.Users.ToListAsync();
             return View(users);
         }
-        
+
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {

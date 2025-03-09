@@ -1,5 +1,6 @@
 ﻿using ManagementSystem.Models;
 using ManagementSystem.Models.Entities;
+using ManagementSystem.Models.Helpers;
 using ManagementSystem.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -9,10 +10,12 @@ namespace ManagementSystem.Controllers
     public class AppointmentsController : Controller
     {
         private readonly ManagementContext _context;
+        private readonly CookieHelper _cookieHelper;
 
-        public AppointmentsController(ManagementContext context)
+        public AppointmentsController(ManagementContext context, CookieHelper cookieHelper)
         {
             _context = context;
+            _cookieHelper = cookieHelper;
         }
         public async Task<IActionResult> Index()
         {
@@ -22,7 +25,8 @@ namespace ManagementSystem.Controllers
 
         public async Task<IActionResult> GetAppointmentsByUserId()
         {
-            var appointments = await _context.Appointments.Include(x => x.Service).Include(x => x.User).ToListAsync();
+            var cookieUserId = _cookieHelper.GetCookie("userId");
+            var appointments = await _context.Appointments.Include(x => x.Service).Include(x => x.User).Where(x => x.UserId == Convert.ToInt32(cookieUserId)).ToListAsync();
             return View(appointments);
         }
 
@@ -58,7 +62,7 @@ namespace ManagementSystem.Controllers
             var services = _context.Services.ToList();
             var model = new CreateAppointmentViewModel
             {
-                Services = services  
+                Services = services
             };
             return View(model);
         }
@@ -66,11 +70,12 @@ namespace ManagementSystem.Controllers
         [HttpPost]
         public IActionResult CreateAppointment(CreateAppointmentViewModel model)
         {
+            var userId = _cookieHelper.GetCookie("userId");
             var appointment = new Appointment
             {
                 ServiceId = model.ServiceId,
                 AppointmentDate = model.AppointmentDate,
-                UserId = 1,
+                UserId = Convert.ToInt32(userId),
                 Status = Status.Approved,
             };
 
