@@ -1,5 +1,6 @@
 ﻿using ManagementSystem.Models;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -22,6 +23,7 @@ namespace ManagementSystem.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public IActionResult GetUser(int id)
         {
             var user = _context.Users.FirstOrDefault(u => u.Id == id);
@@ -54,14 +56,16 @@ namespace ManagementSystem.Controllers
                 ModelState.AddModelError("UserName", "Bu kullanıcı adı zaten alınmış.");
                 return View(model);
             }
-
+            byte[] passwordHash, passwordSalt;
+            HashingHelper.CreatePasswordHash(model.Password, out passwordHash, out passwordSalt);
             var user = new User
             {
                 FirstName = model.FirstName,
                 LastName = model.LastName,
                 UserName = model.UserName,
                 UserType = model.UserType,
-                Password = model.Password,
+                PasswordHash = passwordHash,
+                PasswordSalt = passwordSalt,
             };
 
             _context.Users.Add(user);
@@ -87,13 +91,17 @@ namespace ManagementSystem.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
             if (ModelState.IsValid)
             {
                 var user = _context.Users.FirstOrDefault(x => x.UserName == model.UserName);
 
+                if (user == null || !HashingHelper.VerifyPasswordHash(model.Password, user.PasswordHash, user.PasswordSalt))
+                {
+                    ModelState.AddModelError(string.Empty, "Kullanıcı adı veya şifre hatalı");
+                    return View(model);
+                }
                 switch (user.UserType)
                 {
                     case UserType.User:
@@ -101,15 +109,11 @@ namespace ManagementSystem.Controllers
 
                     case UserType.Admin:
                         return RedirectToAction("Appointment", "Home");
-
-                    default:
-                        ModelState.AddModelError(string.Empty, "Geçersiz kullanıcı tipi");
-                        return View(model);
                 }
             }
-
             return View(model);
         }
+        [Authorize]
         public async Task<IActionResult> Index()
         {
             var users = await _context.Users.ToListAsync();

@@ -21,7 +21,8 @@ namespace ManagementSystem.Models
                     FirstName = "Kemal",
                     LastName = "Sen",
                     UserName = "kemlsen",
-                    Password = "123",
+                    PasswordSalt = Convert.FromBase64String("3ttkFQ6rqgOkFCyqEPr6h68TxHAT90I4ztzS5Pl2m10="),
+                    PasswordHash = Convert.FromBase64String("uTjdK35Y3Ut9pTrDdI1gx6JgpJ0E0hx0tOupoc4z9J3TrHZxxusS8JHDWfF9Eu3qyd9pcUeZOhlRgdQ2n60OrQ=="),
                     UserType = UserType.Admin
                 },
                 new User
@@ -30,7 +31,8 @@ namespace ManagementSystem.Models
                     FirstName = "Ahmet",
                     LastName = "Hassan",
                     UserName = "ahassan",
-                    Password = "123",
+                    PasswordSalt = Convert.FromBase64String("3ttkFQ6rqgOkFCyqEPr6h68TxHAT90I4ztzS5Pl2m10="),
+                    PasswordHash = Convert.FromBase64String("uTjdK35Y3Ut9pTrDdI1gx6JgpJ0E0hx0tOupoc4z9J3TrHZxxusS8JHDWfF9Eu3qyd9pcUeZOhlRgdQ2n60OrQ=="),
                     UserType = UserType.User
                 }
             );
