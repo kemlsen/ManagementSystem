@@ -141,6 +141,7 @@ namespace ManagementSystem.Controllers
         public async Task<IActionResult> Logout()
         {
             _cookieHelper.DeleteCookie("userId");
+            _cookieHelper.DeleteCookie("role");
             return RedirectToAction("Login", "Auth");
         }
     }
