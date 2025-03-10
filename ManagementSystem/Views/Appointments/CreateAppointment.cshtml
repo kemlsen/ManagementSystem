@@ -1,6 +1,10 @@
 ﻿@using ManagementSystem.Models.ViewModels
 @model CreateAppointmentViewModel
 
+@{
+    ViewData["Title"] = "Randevu Olustur";
+}
+
 <nav class="navbar navbar-dark bg-dark px-4">
     <a class="navbar-brand text-white" href="/userdashboard/index">User Panel</a>
     <div class="d-flex">
@@ -12,9 +16,6 @@
 <div class="content-wrapper d-flex justify-content-center align-items-center min-vh-100">
     <div class="card shadow-lg border-0" style="width: 100%; max-width: 400px; border-radius: 10px;">
         <div class="card-body p-4">
-            <div class="text-center mb-4">
-                <h3 class="fw-bold text-primary">Kayıt Ol</h3>
-            </div>
             <form asp-action="CreateAppointment" method="post">
                 <div class="mb-3">
                     <label for="AppointmentDate" class="form-label">Randevu Tarihi</label>
@@ -25,7 +26,7 @@
                 <div class="mb-3">
                     <label for="ServiceId" class="form-label">Hizmet Seçin</label>
                     <select id="ServiceId" name="ServiceId" class="form-control" asp-for="ServiceId" required>
-                        @foreach (var service in Model.Services)
+                        @foreach (var service in ViewBag.Services)
                         {
                             <option value="@service.Id">@service.Name</option>
                         }

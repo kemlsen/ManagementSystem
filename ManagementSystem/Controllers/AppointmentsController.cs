@@ -67,12 +67,10 @@ namespace ManagementSystem.Controllers
         public IActionResult CreateAppointment()
         {
             var services = _context.Services.ToList();
-            var model = new CreateAppointmentViewModel
-            {
-                Services = services
-            };
-            return View(model);
+            ViewBag.Services = services.Select(x => new { x.Id, x.Name }).ToList();
+            return View();
         }
+
 
         [CustomAuthorize("User")]
         [HttpPost]
@@ -90,7 +88,7 @@ namespace ManagementSystem.Controllers
             _context.Appointments.Add(appointment);
             _context.SaveChanges();
 
-            return RedirectToAction("Index", "Appointments");
+            return RedirectToAction("GetAppointmentsByUserId", "Appointments");
         }
     }
 }
