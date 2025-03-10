@@ -13,10 +13,10 @@
         {
             var options = new CookieOptions
             {
-                Expires = DateTime.Now.AddDays(days),
                 HttpOnly = true,
-                Secure = true, 
-                SameSite = SameSiteMode.Strict
+                Secure = true,
+                SameSite = SameSiteMode.Strict,
+                IsEssential = true
             };
 
             _httpContextAccessor.HttpContext.Response.Cookies.Append(key, value, options);

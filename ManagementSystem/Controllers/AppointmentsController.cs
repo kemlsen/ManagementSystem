@@ -31,6 +31,10 @@ namespace ManagementSystem.Controllers
         {
             var cookieUserId = _cookieHelper.GetCookie("userId");
             var appointments = await _context.Appointments.Include(x => x.Service).Include(x => x.User).Where(x => x.UserId == Convert.ToInt32(cookieUserId)).ToListAsync();
+
+            var services = _context.Services.ToList();
+            ViewBag.Services = services.Select(x => new { x.Id, x.Name }).ToList();
+
             return View(appointments);
         }
 
@@ -59,7 +63,7 @@ namespace ManagementSystem.Controllers
 
             _context.SaveChanges();
 
-            return RedirectToAction("Index", "Appointments");
+            return RedirectToAction("GetAppointmentsByUserId", "Appointments");
         }
 
         [CustomAuthorize("User")]
