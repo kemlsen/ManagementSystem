@@ -1,3 +1,4 @@
+using ManagementSystem.Hubs;
 using ManagementSystem.Models;
 using ManagementSystem.Models.Helpers;
 using Microsoft.EntityFrameworkCore;
@@ -8,16 +9,16 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddScoped<CookieHelper>();
-
+builder.Services.AddSignalR();
 builder.Services.AddDbContext<ManagementContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))); 
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    app.UseHsts(); 
+    app.UseHsts();
 }
 
 app.UseHttpsRedirection();
@@ -32,5 +33,5 @@ app.MapControllerRoute(
     pattern: "{controller=Auth}/{action=Login}/{id?}")
     .WithStaticAssets();
 
-
+app.MapHub<NotificationHub>("/notificationHub");
 app.Run();

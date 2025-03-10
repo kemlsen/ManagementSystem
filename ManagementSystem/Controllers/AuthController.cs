@@ -1,10 +1,12 @@
 ﻿using ManagementSystem.Extentions;
+using ManagementSystem.Hubs;
 using ManagementSystem.Models;
 using ManagementSystem.Models.Entities;
 using ManagementSystem.Models.Helpers;
 using ManagementSystem.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 namespace ManagementSystem.Controllers
@@ -13,11 +15,12 @@ namespace ManagementSystem.Controllers
     {
         private readonly ManagementContext _context;
         private readonly CookieHelper _cookieHelper;
-
-        public AuthController(ManagementContext context, CookieHelper cookieHelper)
+        private readonly IHubContext<NotificationHub> _hubContext;
+        public AuthController(ManagementContext context, CookieHelper cookieHelper, IHubContext<NotificationHub> hubContext)
         {
             _context = context;
             _cookieHelper = cookieHelper;
+            _hubContext = hubContext;
         }
 
         [HttpGet]
@@ -77,8 +80,6 @@ namespace ManagementSystem.Controllers
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
             TempData["Success"] = "Kullanıcı başarıyla eklendi";
-            _cookieHelper.SetCookie("userId", user.Id.ToString());
-            _cookieHelper.SetCookie("role", ((int)user.UserType).ToString());
             return RedirectToAction("Index", "Auth");
         }
 
@@ -103,15 +104,20 @@ namespace ManagementSystem.Controllers
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == model.Id);
 
-            user.FirstName = model.FirstName;
-            user.LastName = model.LastName;
-            user.UserName = model.UserName;
-            user.UserType = (UserType)model.UserType;
+            if (user != null)
+            {
+                user.FirstName = model.FirstName;
+                user.LastName = model.LastName;
+                user.UserName = model.UserName;
+                user.UserType = (UserType)model.UserType;
 
-            _context.Users.Update(user);
-            await _context.SaveChangesAsync();
-            TempData["Success"] = "Kullanıcı başarıyla güncellendi";
-            return RedirectToAction("Index", "Auth");
+                _context.Users.Update(user);
+                await _context.SaveChangesAsync();
+
+                _hubContext.Clients.All.SendAsync("ReceiveUserUpdate");
+                return Ok();
+            }
+            return NotFound();
         }
 
         [CustomAuthorize("Admin")]
@@ -130,7 +136,7 @@ namespace ManagementSystem.Controllers
             _context.Users.Remove(user);
             _context.SaveChanges();
             TempData["Success"] = "Kullanıcı başarıyla silindi!";
-
+            _hubContext.Clients.All.SendAsync("ReceiveUserUpdate");
             return RedirectToAction("Index");
         }
 
@@ -140,6 +146,21 @@ namespace ManagementSystem.Controllers
             _cookieHelper.DeleteCookie("role");
             TempData["Success"] = "Çıkış yapıldı";
             return RedirectToAction("Login", "Auth");
+        }
+        public List<GetUserViewModel> GetUsers()
+        {
+            var users = _context.Users.ToList();
+
+            var result = users.Select(u => new GetUserViewModel
+            {
+                Id = u.Id,
+                FirstName = u.FirstName,
+                LastName = u.LastName,
+                UserName = u.UserName,
+                UserType = u.UserType.ToString()
+            }).ToList();
+
+            return result;
         }
     }
 }
