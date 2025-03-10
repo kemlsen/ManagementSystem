@@ -5,12 +5,13 @@
 @{
     ViewData["Title"] = "Randevular";
 }
+
 <nav class="navbar navbar-dark bg-dark px-4">
     <a class="navbar-brand text-white" href="/admindashboard/index">Admin Panel</a>
     <div class="d-flex">
         <a href="/auth/index" class="nav-link text-white">Kullanıcılar</a>
         <a href="/appointments/index" class="nav-link text-white ms-3">Randevular</a>
-        <a href="/auth/logout" class="nav-link text-white ms-3">Çıkış Yap</a>
+        <a href="/auth/logout" class="nav-link text-white ms-3">Çıkış Yap</a>
     </div>
 </nav>
 
@@ -49,28 +50,29 @@
             </tbody>
         </table>
     </div>
-</div>
 
-<div class="modal fade" id="editStatusModal" tabindex="-1" role="dialog" aria-labelledby="editStatusModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content rounded-lg shadow-lg">
-            <form id="editStatusForm">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="editStatusModalLabel">Randevu Durumunu Güncelle</h5>
-                </div>
-                <div class="modal-body">
-                    <input type="hidden" id="editAppointmentId" />
-                    <div class="form-group">
-                        <label for="editAppointmentStatus">Durum</label>
-                        <select class="form-control" id="editAppointmentStatus" required>
+    <div class="card mt-4 shadow-sm" id="editInlineFormContainer" style="display: none;">
+        <div class="card-header bg-secondary text-white">
+            <strong>Randevu Durumunu Güncelle</strong>
+        </div>
+        <div class="card-body">
+            <form id="editInlineForm">
+                <input type="hidden" id="editAppointmentIdInline" />
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <label>Durum</label>
+                        <select class="form-control" id="editAppointmentStatusInline" required>
                             <option value="1">Onaylandı</option>
                             <option value="2">İptal Edildi</option>
                             <option value="3">Tamamlandı</option>
                         </select>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary">Kaydet</button>
+                <div class="row">
+                    <div class="col-md-12 text-right">
+                        <button type="submit" class="btn btn-success me-2">Kaydet</button>
+                        <button type="button" class="btn btn-secondary" id="cancelEditBtn">İptal</button>
+                    </div>
                 </div>
             </form>
         </div>
@@ -83,27 +85,34 @@
             var appointmentId = $(this).data('id');
             var status = $(this).data('status');
 
-            $('#editAppointmentId').val(appointmentId);
-            $('#editAppointmentStatus').val(status);
+            $('#editAppointmentIdInline').val(appointmentId);
+            $('#editAppointmentStatusInline').val(status);
 
-            $('#editStatusModal').modal('show');
+            $('#editInlineFormContainer').slideDown();
+            $('html, body').animate({
+                scrollTop: $("#editInlineFormContainer").offset().top
+            }, 400);
         });
 
-        $('#editStatusForm').on('submit', function (e) {
+        $('#cancelEditBtn').on('click', function () {
+            $('#editInlineFormContainer').slideUp();
+        });
+
+        $('#editInlineForm').on('submit', function (e) {
             e.preventDefault();
 
             var data = {
-                Id: $('#editAppointmentId').val(),
-                Status: $('#editAppointmentStatus').val()
+                Id: $('#editAppointmentIdInline').val(),
+                Status: $('#editAppointmentStatusInline').val()
             };
 
             $.ajax({
-                    url: '/Appointments/UpdateStatus', 
+                url: '/Appointments/UpdateStatus',
                 type: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify(data),
                 success: function () {
-                    $('#editStatusModal').modal('hide');
+                    $('#editInlineFormContainer').slideUp();
                     location.reload();
                 },
                 error: function () {

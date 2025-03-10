@@ -5,11 +5,12 @@
 @{
     ViewData["Title"] = "Randevularım";
 }
+
 <nav class="navbar navbar-dark bg-dark px-4">
     <a class="navbar-brand text-white" href="/userdashboard/index">User Panel</a>
     <div class="d-flex">
         <a href="/appointments/getappointmentsbyuserId" class="nav-link text-white ms-3">Randevularım</a>
-        <a href="/auth/logout" class="nav-link text-white ms-3">Çıkış Yap</a>
+        <a href="/auth/logout" class="nav-link text-white ms-3">Çıkış Yap</a>
     </div>
 </nav>
 
@@ -40,6 +41,7 @@
                                class="btn btn-warning btn-sm editStatusBtn"
                                data-id="@appointment.Id"
                                data-status="@((int)appointment.Status)"
+                               data-serviceid="@appointment.Service.Id"
                                data-appointmentdate="@appointment.AppointmentDate.ToString("yyyy-MM-ddTHH:mm")">
                                 <i class="fas fa-edit fa-lg"></i>
                             </a>
@@ -58,6 +60,36 @@
         </table>
     </div>
 
+    <div class="card mt-4 shadow-sm" id="editInlineFormContainer" style="display: none;">
+        <div class="card-header bg-secondary text-white">
+            <strong>Randevu Güncelle</strong>
+        </div>
+        <div class="card-body">
+            <form id="editInlineForm">
+                <input type="hidden" id="editAppointmentIdInline" />
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label>Servis</label>
+                        <select class="form-control" id="editAppointmentServiceInline" required>
+                            @foreach (var service in ViewBag.Services)
+                            {
+                                <option value="@service.Id">@service.Name</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label>Randevu Tarihi</label>
+                        <input type="datetime-local" class="form-control" id="editAppointmentDateInline" required />
+                    </div>
+                    <div class="col-md-4 d-flex align-items-end">
+                        <button type="submit" class="btn btn-success me-2">Kaydet</button>
+                        <button type="button" class="btn btn-secondary" id="cancelEditBtn">İptal</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div class="text-center mt-4">
         <a href="@Url.Action("CreateAppointment", "Appointments")" class="btn btn-success">
             <i class="fas fa-plus fa-lg"></i> Randevu Ekle
@@ -65,58 +97,34 @@
     </div>
 </div>
 
-<div class="modal fade" id="editStatusModal" tabindex="-1" role="dialog" aria-labelledby="editStatusModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content rounded-lg shadow-lg">
-            <form id="editStatusForm">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="editStatusModalLabel">Randevu Durumunu Güncelle</h5>
-                </div>
-                <div class="modal-body">
-                    <input type="hidden" id="editAppointmentId" />
-                    <div class="form-group">
-                        <label for="editAppointmentService">Servis</label>
-                        <!-- Servisler dropdown'u, tüm servisler listelenecek -->
-                        <select class="form-control" id="editAppointmentService" required>
-                            @foreach (var service in ViewBag.Services)
-                            {
-                                <option value="@service.Id">@service.Name</option>
-                            }
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="editAppointmentDate">Randevu Tarihi</label>
-                        <input type="datetime-local" class="form-control" id="editAppointmentDate" required />
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary">Kaydet</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-
 @section Scripts {
     <script>
         $(document).on('click', '.editStatusBtn', function () {
             var appointmentId = $(this).data('id');
-            var appointmentDate = $(this).data('appointmentdate'); // Appointment Date from data attribute
+            var appointmentDate = $(this).data('appointmentdate');
+            var serviceId = $(this).data('serviceid');
 
-            $('#editAppointmentId').val(appointmentId);
-            $('#editAppointmentDate').val(appointmentDate); 
+            $('#editAppointmentIdInline').val(appointmentId);
+            $('#editAppointmentDateInline').val(appointmentDate);
+            $('#editAppointmentServiceInline').val(serviceId);
 
-            $('#editStatusModal').modal('show');
+            $('#editInlineFormContainer').slideDown();
+            $('html, body').animate({
+                scrollTop: $("#editInlineFormContainer").offset().top
+            }, 400);
         });
 
-        $('#editStatusForm').on('submit', function (e) {
+        $('#cancelEditBtn').on('click', function () {
+            $('#editInlineFormContainer').slideUp();
+        });
+
+        $('#editInlineForm').on('submit', function (e) {
             e.preventDefault();
 
             var data = {
-                Id: $('#editAppointmentId').val(),
-                AppointmentDate: $('#editAppointmentDate').val(),
-                ServiceId: $('#editAppointmentService').val()
+                Id: $('#editAppointmentIdInline').val(),
+                AppointmentDate: $('#editAppointmentDateInline').val(),
+                ServiceId: $('#editAppointmentServiceInline').val()
             };
 
             $.ajax({
@@ -125,11 +133,11 @@
                 contentType: 'application/json',
                 data: JSON.stringify(data),
                 success: function () {
-                    $('#editStatusModal').modal('hide');
+                    $('#editInlineFormContainer').slideUp();
                     location.reload();
                 },
                 error: function () {
-                    alert("Durum güncellenirken bir hata oluştu.");
+                    alert("Güncelleme sırasında bir hata oluştu.");
                 }
             });
         });
