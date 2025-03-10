@@ -1,8 +1,8 @@
-﻿using ManagementSystem.Models;
+﻿using ManagementSystem.Extentions;
+using ManagementSystem.Models;
 using ManagementSystem.Models.Entities;
 using ManagementSystem.Models.Helpers;
 using ManagementSystem.Models.ViewModels;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -39,6 +39,7 @@ namespace ManagementSystem.Controllers
                     return View(model);
                 }
                 _cookieHelper.SetCookie("userId", user.Id.ToString());
+                _cookieHelper.SetCookie("role", ((int)user.UserType).ToString());
                 switch (user.UserType)
                 {
                     case UserType.User:
@@ -51,6 +52,7 @@ namespace ManagementSystem.Controllers
             return View(model);
         }
 
+        [CustomAuthorize("Admin")]
         [HttpPost]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
@@ -74,9 +76,11 @@ namespace ManagementSystem.Controllers
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
             _cookieHelper.SetCookie("userId", user.Id.ToString());
+            _cookieHelper.SetCookie("role", ((int)user.UserType).ToString());
             return RedirectToAction("Index", "Auth");
         }
 
+        [CustomAuthorize("Admin")]
         [HttpGet]
         public IActionResult Register()
         {
@@ -91,6 +95,7 @@ namespace ManagementSystem.Controllers
             return View();
         }
 
+        [CustomAuthorize("Admin")]
         [HttpPost]
         public async Task<IActionResult> UpdateUser([FromBody] UpdateUserViewModel model)
         {
@@ -107,12 +112,14 @@ namespace ManagementSystem.Controllers
             return RedirectToAction("Index", "Auth");
         }
 
+        [CustomAuthorize("Admin")]
         public async Task<IActionResult> Index()
         {
             var users = await _context.Users.ToListAsync();
             return View(users);
         }
 
+        [CustomAuthorize("Admin")]
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
@@ -133,7 +140,7 @@ namespace ManagementSystem.Controllers
 
         public async Task<IActionResult> Logout()
         {
-            await HttpContext.SignOutAsync();
+            _cookieHelper.DeleteCookie("userId");
             return RedirectToAction("Login", "Auth");
         }
     }

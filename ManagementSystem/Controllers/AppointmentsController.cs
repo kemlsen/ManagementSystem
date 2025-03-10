@@ -1,4 +1,5 @@
-﻿using ManagementSystem.Models;
+﻿using ManagementSystem.Extentions;
+using ManagementSystem.Models;
 using ManagementSystem.Models.Entities;
 using ManagementSystem.Models.Helpers;
 using ManagementSystem.Models.ViewModels;
@@ -17,12 +18,15 @@ namespace ManagementSystem.Controllers
             _context = context;
             _cookieHelper = cookieHelper;
         }
+
+        [CustomAuthorize("Admin")]
         public async Task<IActionResult> Index()
         {
             var appointments = await _context.Appointments.Include(x => x.Service).Include(x => x.User).ToListAsync();
             return View(appointments);
         }
 
+        [CustomAuthorize("User")]
         public async Task<IActionResult> GetAppointmentsByUserId()
         {
             var cookieUserId = _cookieHelper.GetCookie("userId");
@@ -30,6 +34,7 @@ namespace ManagementSystem.Controllers
             return View(appointments);
         }
 
+        [CustomAuthorize("Admin")]
         [HttpPost]
         public IActionResult UpdateStatus([FromBody] UpdateAppointmentStatusViewModel model)
         {
@@ -43,6 +48,7 @@ namespace ManagementSystem.Controllers
             return RedirectToAction("Index", "Appointments");
         }
 
+        [CustomAuthorize("User")]
         [HttpPost]
         public IActionResult UpdateAppointment([FromBody] UpdateAppointmentViewModel model)
         {
@@ -56,6 +62,7 @@ namespace ManagementSystem.Controllers
             return RedirectToAction("Index", "Appointments");
         }
 
+        [CustomAuthorize("User")]
         [HttpGet]
         public IActionResult CreateAppointment()
         {
@@ -67,6 +74,7 @@ namespace ManagementSystem.Controllers
             return View(model);
         }
 
+        [CustomAuthorize("User")]
         [HttpPost]
         public IActionResult CreateAppointment(CreateAppointmentViewModel model)
         {
