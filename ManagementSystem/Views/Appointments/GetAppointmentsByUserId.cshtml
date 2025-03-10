@@ -18,7 +18,7 @@
     <h1 class="text-center mb-4">@ViewData["Title"]</h1>
 
     <div class="table-responsive">
-        <table class="table table-striped table-hover table-bordered shadow-sm rounded">
+        <table class="table table-striped table-hover table-bordered shadow-sm rounded" id="appointmentTable">
             <thead class="thead-dark">
                 <tr>
                     <th>Kullanıcı</th>
@@ -31,28 +31,23 @@
             <tbody>
                 @foreach (var appointment in Model)
                 {
-                    <tr>
+                    <tr data-id="@appointment.Id">
                         <td>@appointment.User.UserName</td>
                         <td>@appointment.Service.Name</td>
                         <td>@appointment.AppointmentDate.ToString("dd.MM.yyyy HH:mm")</td>
                         <td>@EnumHelper.GetEnumDescription(appointment.Status)</td>
                         <td class="text-right">
-                            <a href="javascript:void(0);"
-                               class="btn btn-warning btn-sm editStatusBtn"
-                               data-id="@appointment.Id"
-                               data-status="@((int)appointment.Status)"
-                               data-serviceid="@appointment.Service.Id"
-                               data-appointmentdate="@appointment.AppointmentDate.ToString("yyyy-MM-ddTHH:mm")">
+                            <button class="btn btn-warning btn-sm editStatusBtn"
+                                    data-id="@appointment.Id"
+                                    data-status="@((int)appointment.Status)"
+                                    data-serviceid="@appointment.Service.Id"
+                                    data-appointmentdate="@appointment.AppointmentDate.ToString("yyyy-MM-ddTHH:mm")">
                                 <i class="fas fa-edit fa-lg"></i>
-                            </a>
-                            <form action="@Url.Action("Delete", "Appointments", new { id = appointment.Id })"
-                                  method="post" class="d-inline"
-                                  onsubmit="return confirm('Bu randevuyu silmek istediğinizden emin misiniz?');">
-                                @Html.AntiForgeryToken()
-                                <button type="submit" class="btn btn-danger btn-sm ml-2">
-                                    <i class="fas fa-trash fa-lg"></i>
-                                </button>
-                            </form>
+                            </button>
+                            <button class="btn btn-danger btn-sm ml-2 deleteAppointmentBtn"
+                                    data-id="@appointment.Id">
+                                <i class="fas fa-trash fa-lg"></i>
+                            </button>
                         </td>
                     </tr>
                 }
@@ -98,24 +93,94 @@
 </div>
 
 @section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/3.1.7/signalr.min.js"></script>
+
     <script>
-        $(document).on('click', '.editStatusBtn', function () {
-            var appointmentId = $(this).data('id');
-            var appointmentDate = $(this).data('appointmentdate');
-            var serviceId = $(this).data('serviceid');
+        var connection = new signalR.HubConnectionBuilder()
+            .withUrl("/notificationHub")
+            .build();
 
-            $('#editAppointmentIdInline').val(appointmentId);
-            $('#editAppointmentDateInline').val(appointmentDate);
-            $('#editAppointmentServiceInline').val(serviceId);
-
-            $('#editInlineFormContainer').slideDown();
-            $('html, body').animate({
-                scrollTop: $("#editInlineFormContainer").offset().top
-            }, 400);
+        connection.on("ReceiveAppointmentUpdate", function () {
+            loadAppointments();
         });
 
-        $('#cancelEditBtn').on('click', function () {
-            $('#editInlineFormContainer').slideUp();
+        connection.start().catch(function (err) {
+            return console.error(err.toString());
+        });
+
+        function loadAppointments() {
+            $.ajax({
+                url: '/Appointments/GetAppointments',
+                type: 'GET',
+                success: function (appointments) {
+                    if (Array.isArray(appointments)) {
+                        console.log(appointments)
+                        updateAppointmentTable(appointments);
+                    }
+                },
+                error: function () {
+                    alert("Randevular yüklenirken bir hata oluştu.");
+                }
+            });
+        }
+
+        function updateAppointmentTable(appointments) {
+            var tbody = $('#appointmentTable tbody');
+            tbody.empty();
+            appointments.forEach(function (appointment) {
+                var row = `
+                    <tr data-id="${appointment.id}">
+                        <td>${appointment.userName}</td>
+                        <td>${appointment.serviceName}</td>
+                        <td>${appointment.appointmentDate}</td>
+                        <td>${appointment.status}</td>
+                        <td class="text-right">
+                            <button class="btn btn-warning btn-sm editStatusBtn"
+                                    data-id="${appointment.id}"
+                                    data-status="${appointment.status}"
+                                    data-serviceid="${appointment.serviceId}"
+                                    data-appointmentdate="${appointment.appointmentDate}">
+                                <i class="fas fa-edit fa-lg"></i>
+                            </button>
+                            <button class="btn btn-danger btn-sm ml-2 deleteAppointmentBtn"
+                                    data-id="${appointment.id}">
+                                <i class="fas fa-trash fa-lg"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                tbody.append(row);
+            });
+        }
+
+        $(document).on('click', '.deleteAppointmentBtn', function (e) {
+            e.preventDefault();
+
+            var appointmentId = $(this).data('id');
+
+            $.ajax({
+                url: `/Appointments/Delete/${appointmentId}`,
+                type: 'POST',
+                success: function () {
+                    loadAppointments();
+                },
+                error: function () {
+                }
+            });
+        });
+
+        $(document).on('click', '.editStatusBtn', function () {
+            var appointmentId = $(this).data('id');
+            var status = $(this).data('status');
+            var serviceId = $(this).data('serviceid');
+            var appointmentDate = $(this).data('appointmentdate');
+
+            $('#editAppointmentIdInline').val(appointmentId);
+            $('#editAppointmentServiceInline').val(serviceId);
+            $('#editAppointmentDateInline').val(appointmentDate);
+
+            $('#editInlineFormContainer').show();
         });
 
         $('#editInlineForm').on('submit', function (e) {
@@ -123,8 +188,8 @@
 
             var data = {
                 Id: $('#editAppointmentIdInline').val(),
-                AppointmentDate: $('#editAppointmentDateInline').val(),
-                ServiceId: $('#editAppointmentServiceInline').val()
+                ServiceId: $('#editAppointmentServiceInline').val(),
+                AppointmentDate: $('#editAppointmentDateInline').val()
             };
 
             $.ajax({
@@ -133,13 +198,16 @@
                 contentType: 'application/json',
                 data: JSON.stringify(data),
                 success: function () {
-                    $('#editInlineFormContainer').slideUp();
-                    location.reload();
+                    $('#editInlineFormContainer').hide();
+                    loadAppointments();
                 },
                 error: function () {
-                    alert("Güncelleme sırasında bir hata oluştu.");
                 }
             });
+        });
+
+        $('#cancelEditBtn').on('click', function () {
+            $('#editInlineFormContainer').hide();
         });
     </script>
 }

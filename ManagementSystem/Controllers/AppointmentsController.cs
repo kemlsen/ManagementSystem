@@ -1,9 +1,11 @@
 ﻿using ManagementSystem.Extentions;
+using ManagementSystem.Hubs;
 using ManagementSystem.Models;
 using ManagementSystem.Models.Entities;
 using ManagementSystem.Models.Helpers;
 using ManagementSystem.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 namespace ManagementSystem.Controllers
@@ -12,11 +14,13 @@ namespace ManagementSystem.Controllers
     {
         private readonly ManagementContext _context;
         private readonly CookieHelper _cookieHelper;
+        private readonly IHubContext<NotificationHub> _hubContext;
 
-        public AppointmentsController(ManagementContext context, CookieHelper cookieHelper)
+        public AppointmentsController(ManagementContext context, CookieHelper cookieHelper, IHubContext<NotificationHub> hubContext)
         {
             _context = context;
             _cookieHelper = cookieHelper;
+            _hubContext = hubContext;
         }
 
         [CustomAuthorize("Admin")]
@@ -60,8 +64,8 @@ namespace ManagementSystem.Controllers
             appointment.AppointmentDate = model.AppointmentDate;
             _context.SaveChanges();
             TempData["Success"] = "Güncelleme başarılı";
-
-            return RedirectToAction("GetAppointmentsByUserId", "Appointments");
+            _hubContext.Clients.All.SendAsync("ReceiveAppointmentUpdate");
+            return Ok();
         }
 
         [CustomAuthorize("User")]
@@ -95,15 +99,36 @@ namespace ManagementSystem.Controllers
         }
 
         [CustomAuthorize("User")]
-        public async Task<IActionResult> Delete(int id)
+        [HttpPost]
+        public async Task<IActionResult> Delete([FromRoute]int id)
         {
             var appointment = await _context.Appointments.FirstOrDefaultAsync(x => x.Id == id);
 
-            _context.Appointments.Remove(appointment);
-            _context.SaveChanges();
-            TempData["Success"] = "Randevu başarıyla silindi!";
+            if (appointment == null)
+                return NotFound();
 
-            return RedirectToAction("GetAppointmentsByUserId");
+            _context.Appointments.Remove(appointment);
+            await _context.SaveChangesAsync();
+
+            await _hubContext.Clients.All.SendAsync("ReceiveAppointmentUpdate");
+            return RedirectToAction("GetAppointmentsByUserId"); 
+        }
+
+        public List<GetAppointmentViewModel> GetAppointments()
+        {
+            var appointments = _context.Appointments.Include(x => x.User).Include(x => x.Service).ToList();
+
+            var result = appointments.Select(u => new GetAppointmentViewModel
+            {
+                Id = u.Id,
+                AppointmentDate = u.AppointmentDate,
+                ServiceName = u.Service.Name,
+                ServiceId = u.Service.Id,
+                Status = EnumHelper.GetEnumDescription(u.Status),
+                UserName = u.User.UserName
+            }).ToList();
+
+            return result;
         }
     }
 }

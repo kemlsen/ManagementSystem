@@ -135,7 +135,6 @@ namespace ManagementSystem.Controllers
 
             _context.Users.Remove(user);
             _context.SaveChanges();
-            TempData["Success"] = "Kullanıcı başarıyla silindi!";
             _hubContext.Clients.All.SendAsync("ReceiveUserUpdate");
             return RedirectToAction("Index");
         }

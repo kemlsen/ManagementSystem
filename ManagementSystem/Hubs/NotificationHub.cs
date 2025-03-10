@@ -5,9 +5,13 @@ namespace ManagementSystem.Hubs
 {
     public class NotificationHub : Hub
     {
-        public async Task SendUserUpdate(User updatedUser)
+        public async Task SendUserUpdate()
         {
-            await Clients.All.SendAsync("ReceiveUserUpdate", updatedUser);
+            await Clients.All.SendAsync("ReceiveUserUpdate");
+        }
+        public async Task SendAppointmentUpdate()
+        {
+            await Clients.All.SendAsync("ReceiveAppointmentUpdate");
         }
     }
 }
