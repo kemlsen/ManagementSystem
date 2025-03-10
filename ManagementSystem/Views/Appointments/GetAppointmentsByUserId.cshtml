@@ -43,6 +43,14 @@
                                data-appointmentdate="@appointment.AppointmentDate.ToString("yyyy-MM-ddTHH:mm")">
                                 <i class="fas fa-edit fa-lg"></i>
                             </a>
+                            <form action="@Url.Action("Delete", "Appointments", new { id = appointment.Id })"
+                                  method="post" class="d-inline"
+                                  onsubmit="return confirm('Bu randevuyu silmek istediğinizden emin misiniz?');">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-danger btn-sm ml-2">
+                                    <i class="fas fa-trash fa-lg"></i>
+                                </button>
+                            </form>
                         </td>
                     </tr>
                 }

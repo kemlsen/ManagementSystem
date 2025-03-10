@@ -90,5 +90,23 @@ namespace ManagementSystem.Controllers
 
             return RedirectToAction("GetAppointmentsByUserId", "Appointments");
         }
+
+        [CustomAuthorize("User")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var appointment = await _context.Appointments.FirstOrDefaultAsync(x => x.Id == id);
+            if (appointment != null)
+            {
+                _context.Appointments.Remove(appointment);
+                _context.SaveChanges();
+                TempData["SuccessMessage"] = "Randevu başarıyla silindi!";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Randevu bulunamadı!";
+            }
+
+            return RedirectToAction("GetAppointmentsByUserId");
+        }
     }
 }
