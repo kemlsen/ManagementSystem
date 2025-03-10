@@ -53,9 +53,7 @@
                     success: function (response) {
                         if (response.success) {
                             }
-                        } else {
-                            $('#errorMessage').text(response.message).show();
-                        }
+                        } 
                     },
                     error: function () {
                         $('#errorMessage').text("Bir hata oluştu, lütfen tekrar deneyin.").show();
