@@ -35,11 +35,12 @@ namespace ManagementSystem.Controllers
 
                 if (user == null || !HashingHelper.VerifyPasswordHash(model.Password, user.PasswordHash, user.PasswordSalt))
                 {
-                    ModelState.AddModelError(string.Empty, "Kullanıcı adı veya şifre hatalı");
+                    TempData["Error"] = "Kullanıcı adı veya şifre hatalı!";
                     return View(model);
                 }
                 _cookieHelper.SetCookie("userId", user.Id.ToString());
                 _cookieHelper.SetCookie("role", ((int)user.UserType).ToString());
+                TempData["Success"] = "Giriş başarılı";
                 switch (user.UserType)
                 {
                     case UserType.User:
@@ -58,7 +59,7 @@ namespace ManagementSystem.Controllers
         {
             if (_context.Users.Any(u => u.UserName == model.UserName))
             {
-                ModelState.AddModelError("UserName", "Bu kullanıcı adı zaten alınmış.");
+                TempData["Error"] = "Bu kullanıcı adı zaten alınmış!";
                 return View(model);
             }
             byte[] passwordHash, passwordSalt;
@@ -75,6 +76,7 @@ namespace ManagementSystem.Controllers
 
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
+            TempData["Success"] = "Kullanıcı başarıyla eklendi";
             _cookieHelper.SetCookie("userId", user.Id.ToString());
             _cookieHelper.SetCookie("role", ((int)user.UserType).ToString());
             return RedirectToAction("Index", "Auth");
@@ -108,7 +110,7 @@ namespace ManagementSystem.Controllers
 
             _context.Users.Update(user);
             await _context.SaveChangesAsync();
-
+            TempData["Success"] = "Kullanıcı başarıyla güncellendi";
             return RedirectToAction("Index", "Auth");
         }
 
@@ -124,16 +126,10 @@ namespace ManagementSystem.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == id);
-            if (user != null)
-            {
-                _context.Users.Remove(user);
-                _context.SaveChanges();
-                TempData["SuccessMessage"] = "Kullanıcı başarıyla silindi!";
-            }
-            else
-            {
-                TempData["ErrorMessage"] = "Kullanıcı bulunamadı!";
-            }
+
+            _context.Users.Remove(user);
+            _context.SaveChanges();
+            TempData["Success"] = "Kullanıcı başarıyla silindi!";
 
             return RedirectToAction("Index");
         }
@@ -142,6 +138,7 @@ namespace ManagementSystem.Controllers
         {
             _cookieHelper.DeleteCookie("userId");
             _cookieHelper.DeleteCookie("role");
+            TempData["Success"] = "Çıkış yapıldı";
             return RedirectToAction("Login", "Auth");
         }
     }

@@ -43,11 +43,10 @@ namespace ManagementSystem.Controllers
         public IActionResult UpdateStatus([FromBody] UpdateAppointmentStatusViewModel model)
         {
             var appointment = _context.Appointments.FirstOrDefault(x => x.Id == model.Id);
-            if (appointment == null)
-                return NotFound();
 
             appointment.Status = (Status)model.Status;
             _context.SaveChanges();
+            TempData["Success"] = "Güncelleme başarılı";
 
             return RedirectToAction("Index", "Appointments");
         }
@@ -57,11 +56,10 @@ namespace ManagementSystem.Controllers
         public IActionResult UpdateAppointment([FromBody] UpdateAppointmentViewModel model)
         {
             var appointment = _context.Appointments.FirstOrDefault(x => x.Id == model.Id);
-
             appointment.ServiceId = model.ServiceId;
             appointment.AppointmentDate = model.AppointmentDate;
-
             _context.SaveChanges();
+            TempData["Success"] = "Güncelleme başarılı";
 
             return RedirectToAction("GetAppointmentsByUserId", "Appointments");
         }
@@ -91,6 +89,7 @@ namespace ManagementSystem.Controllers
 
             _context.Appointments.Add(appointment);
             _context.SaveChanges();
+            TempData["Success"] = "Randevu başarıyla eklendi";
 
             return RedirectToAction("GetAppointmentsByUserId", "Appointments");
         }
@@ -99,16 +98,10 @@ namespace ManagementSystem.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             var appointment = await _context.Appointments.FirstOrDefaultAsync(x => x.Id == id);
-            if (appointment != null)
-            {
-                _context.Appointments.Remove(appointment);
-                _context.SaveChanges();
-                TempData["SuccessMessage"] = "Randevu başarıyla silindi!";
-            }
-            else
-            {
-                TempData["ErrorMessage"] = "Randevu bulunamadı!";
-            }
+
+            _context.Appointments.Remove(appointment);
+            _context.SaveChanges();
+            TempData["Success"] = "Randevu başarıyla silindi!";
 
             return RedirectToAction("GetAppointmentsByUserId");
         }
